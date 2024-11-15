@@ -3,7 +3,7 @@ import Foundation
 class CalculatorViewModel {
     private var model = CalculatorModel()
     
-    // ViewController에서 구독할 수 있는 UI 업데이트 클로저
+    // UI 업데이트를 위한 클로저
     var updateDisplay: ((String) -> Void)?
     
     init() {
@@ -17,7 +17,7 @@ class CalculatorViewModel {
             model.updateDisplayText(with: title)
         }
         
-        // ViewController로 결과를 보내기
+        // ViewController로 결과를 업데이트
         updateDisplay?(model.displayText)
     }
 }

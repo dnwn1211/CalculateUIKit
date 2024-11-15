@@ -23,7 +23,7 @@ class ViewController: UIViewController {
         // UILabel 생성 및 설정
         formulaLabel.backgroundColor = .black
         formulaLabel.textColor = .white
-        formulaLabel.text = "12345"
+        formulaLabel.text = "0"
         formulaLabel.textAlignment = .right
         formulaLabel.font = UIFont.boldSystemFont(ofSize: 60)
         
@@ -94,7 +94,7 @@ class ViewController: UIViewController {
             // 연산자 버튼 색상
             button.backgroundColor = UIColor.orange
         } else {
-            // 숫자 버튼 색상
+            // 숫자 버튼 색상	
             button.backgroundColor = UIColor(.gray)
         }
         
