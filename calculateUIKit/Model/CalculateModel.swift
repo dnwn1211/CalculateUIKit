@@ -47,17 +47,23 @@ class CalculatorModel {
         }
         
         inputValue = String(result)
-        previousValue = nil
+        previousValue = result // 결과를 이전 값으로 저장
         currentOperator = nil
     }
     
     // 연산자를 처리하는 메서드
     private func handleOperator(_ operatorSymbol: String) {
         if let current = Double(inputValue) {
-            previousValue = current
-            inputValue = "0"
+            if let previous = previousValue {
+                // 이전 값이 존재하면 중간 결과를 계산
+                calculateResult()
+            } else {
+                // 이전 값이 없으면 현재 값을 저장
+                previousValue = current
+            }
         }
         currentOperator = operatorSymbol
+        inputValue = "0" // 새로운 숫자 입력을 위해 초기화
     }
     
     // AC 버튼이 눌릴 때 초기화하는 메서드
