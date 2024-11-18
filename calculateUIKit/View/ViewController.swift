@@ -3,6 +3,7 @@ import UIKit
 class ViewController: UIViewController {
     
     private let formulaLabel = UILabel()
+    private let historyLabel = UILabel() // 계산 진행사항 표시용 레이블
     private var viewModel: CalculatorViewModel!
     
     override func viewDidLoad() {
@@ -12,34 +13,49 @@ class ViewController: UIViewController {
         viewModel = CalculatorViewModel()
         
         // ViewModel의 UI 업데이트 클로저 설정
-        viewModel.updateDisplay = { [weak self] displayText in
+        viewModel.updateDisplay = { [weak self] displayText, historyText in
             self?.formulaLabel.text = displayText
+            self?.historyLabel.text = historyText
         }
         
         setupUI()
     }
     
     private func setupUI() {
-        // UILabel 생성 및 설정
+        // 계산 진행사항 레이블 생성 및 설정
+        historyLabel.backgroundColor = .black
+        historyLabel.textColor = .lightGray
+        historyLabel.text = ""
+        historyLabel.textAlignment = .right
+        historyLabel.font = UIFont.systemFont(ofSize: 20)
+        view.addSubview(historyLabel)
+        
+        // 결과 레이블 생성 및 설정
         formulaLabel.backgroundColor = .black
         formulaLabel.textColor = .white
         formulaLabel.text = "0"
         formulaLabel.textAlignment = .right
         formulaLabel.font = UIFont.boldSystemFont(ofSize: 60)
-        
-        // UILabel을 뷰에 추가
         view.addSubview(formulaLabel)
         
-        // AutoLayout 설정
+        // 레이블 AutoLayout 설정
+        historyLabel.translatesAutoresizingMaskIntoConstraints = false
         formulaLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
+            // 계산 진행사항 레이블
+            historyLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
+            historyLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
+            historyLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 100),
+            historyLabel.heightAnchor.constraint(equalToConstant: 30),
+            
+            // 결과 레이블
             formulaLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
             formulaLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
-            formulaLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 150),
+            formulaLabel.topAnchor.constraint(equalTo: historyLabel.bottomAnchor, constant: 10),
             formulaLabel.heightAnchor.constraint(equalToConstant: 100)
         ])
         
-        // 버튼 타이틀을 4x4 그리드 순서로 배열
+        // 버튼 타이틀 배열
         let buttonTitles = [
             ["7", "8", "9", "+"],
             ["4", "5", "6", "-"],
@@ -47,14 +63,12 @@ class ViewController: UIViewController {
             ["AC", "0", "=", "/"]
         ]
         
-        // 수평 스택뷰 배열을 담을 수직 스택뷰 생성
+        // 수직 스택뷰 생성
         let verticalStackView = UIStackView()
         verticalStackView.axis = .vertical
         verticalStackView.spacing = 10
         verticalStackView.distribution = .fillEqually
-        verticalStackView.backgroundColor = .black
         
-        // 각 행별로 수평 스택뷰 생성 및 버튼 추가
         for row in buttonTitles {
             let horizontalStackView = UIStackView()
             horizontalStackView.axis = .horizontal
@@ -62,49 +76,40 @@ class ViewController: UIViewController {
             horizontalStackView.distribution = .fillEqually
             
             for title in row {
-                // 버튼 생성 및 설정을 함수로 처리
                 let button = createButton(withTitle: title)
                 horizontalStackView.addArrangedSubview(button)
             }
             
-            // 수직 스택뷰에 수평 스택뷰 추가
             verticalStackView.addArrangedSubview(horizontalStackView)
         }
         
-        // 수직 스택뷰를 뷰에 추가하고 AutoLayout 설정
         view.addSubview(verticalStackView)
         verticalStackView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             verticalStackView.widthAnchor.constraint(equalToConstant: 350),
-            verticalStackView.topAnchor.constraint(equalTo: formulaLabel.bottomAnchor, constant: 200),
+            verticalStackView.topAnchor.constraint(equalTo: formulaLabel.bottomAnchor, constant: 180),
             verticalStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             verticalStackView.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: 0)
         ])
     }
     
-    // 버튼을 생성하는 함수
     private func createButton(withTitle title: String) -> UIButton {
         let button = UIButton(type: .system)
         button.setTitle(title, for: .normal)
         button.titleLabel?.font = .boldSystemFont(ofSize: 30)
         button.setTitleColor(.white, for: .normal)
         
-        // 숫자와 연산자 버튼을 구분하여 배경색 설정
         if ["+", "-", "*", "/", "AC", "="].contains(title) {
-            // 연산자 버튼 색상
             button.backgroundColor = UIColor.orange
         } else {
-            // 숫자 버튼 색상	
-            button.backgroundColor = UIColor(.gray)
+            button.backgroundColor = UIColor.gray
         }
         
-        // 버튼을 둥글게 만들기 위해 크기와 코너 반경 설정
         button.widthAnchor.constraint(equalToConstant: 80).isActive = true
         button.heightAnchor.constraint(equalToConstant: 80).isActive = true
         button.layer.cornerRadius = 40
         button.clipsToBounds = true
         
-        // 버튼 클릭 시 ViewModel에 전달
         button.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside)
         
         return button
