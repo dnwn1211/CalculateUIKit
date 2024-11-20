@@ -1,9 +1,7 @@
 import Foundation
 
 class CalculatorModel {
-    private var inputValue: String = "0"
-    private var previousValue: Double? = nil
-    private var currentOperator: String? = nil
+    private var inputValue: String = "0" // 현재 입력 값
     var historyText: String = "" // 계산 진행사항
     
     var displayText: String {
@@ -13,17 +11,20 @@ class CalculatorModel {
     func updateDisplayText(with input: String) {
         if let _ = Double(input) {
             // 숫자 입력 처리
-            if inputValue == "0" {
+            if inputValue == "0" || inputValue == "" {
                 inputValue = input
             } else {
                 inputValue += input
             }
         } else if input == "=" {
-            // "=" 입력 시 결과 계산
-            calculateResult()
-        } else {
+            // 계산 결과 처리
+            finalizeResult()
+        } else if isOperator(input) {
             // 연산자 처리
             handleOperator(input)
+        } else {
+            // 잘못된 입력은 무시
+            return
         }
         
         // 계산 진행사항 업데이트
@@ -32,51 +33,41 @@ class CalculatorModel {
         }
     }
     
-    private func calculateResult() {
-        guard let operatorSymbol = currentOperator,
-              let previous = previousValue,
-              let current = Double(inputValue) else { return }
-        
-        let result: Double
-        
-        // 사칙연산 처리
-        switch operatorSymbol {
-        case "+":
-            result = previous + current
-        case "-":
-            result = previous - current
-        case "*":
-            result = previous * current
-        case "/":
-            result = previous / current
-        default:
-            return
+    private func handleOperator(_ operatorSymbol: String) {
+        // 연산자를 추가하면서 입력값을 업데이트
+        if inputValue.last?.isNumber == true {
+            inputValue += " \(operatorSymbol) "
         }
-        
-        // 결과 갱신
-        inputValue = String(result)
-        previousValue = result // 결과를 이전 값으로 저장
-        currentOperator = nil // 현재 연산자 초기화
     }
     
-    private func handleOperator(_ operatorSymbol: String) {
-        if let current = Double(inputValue) {
-            if let _ = previousValue {
-                // 이전 값이 있을 경우 중간 계산 실행
-                calculateResult()
-            } else {
-                // 이전 값이 없으면 현재 값을 저장
-                previousValue = current
-            }
+    private func finalizeResult() {
+        do {
+            // `NSExpression`을 사용해 수식을 계산
+            let result = try calculate(expression: inputValue)
+            inputValue = String(result)
+            historyText = "" // 계산 완료 후 진행사항 초기화
+        } catch {
+            inputValue = "Error"
+            historyText = "Invalid Expression"
         }
-        currentOperator = operatorSymbol // 새로운 연산자를 저장
-        inputValue = "0" // 새로운 입력을 위해 초기화
+    }
+    
+    private func calculate(expression: String) throws -> Double {
+        // `NSExpression`을 사용하여 수식을 평가
+        let formattedExpression = NSExpression(format: expression)
+        if let result = formattedExpression.expressionValue(with: nil, context: nil) as? Double {
+            return result
+        } else {
+            throw NSError(domain: "CalculatorError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid expression"])
+        }
+    }
+    
+    private func isOperator(_ input: String) -> Bool {
+        return input == "+" || input == "-" || input == "*" || input == "/"
     }
     
     func clear() {
         inputValue = "0"
-        previousValue = nil
-        currentOperator = nil
         historyText = ""
     }
 }
