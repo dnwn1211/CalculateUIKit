@@ -62,12 +62,8 @@ class ViewController: UIViewController {
         ])
         
         // 버튼 배열 정의 (각 행의 버튼 레이아웃)
-        let buttonTitles = [
-            ["7", "8", "9", "+"],
-            ["4", "5", "6", "-"],
-            ["1", "2", "3", "*"],
-            ["AC", "0", "=", "/"]
-        ]
+        let buttonTitles = ButtonTitle.rows
+
         
         // 수직 스택뷰 생성 (버튼 레이아웃 그룹화)
         let verticalStackView = UIStackView()
