@@ -17,6 +17,7 @@
 ## 코드 구조 ( Swift MVVM )
 
 `CalculatorViewController.swift` : 사용자 인터페이스(UI) 로직을 담당하며, 사용자 입력을 처리하고 화면을 업데이트합니다.
+
 `buttonTitle` : 버튼 값들을 저장했습니다.
 
 `CalculatorModel.swift` : 계산기의 핵심 로직을 처리하며, 덧셈, 뺄셈 등 연산과 상태 관리를 담당합니다.
